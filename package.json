@@ -20,7 +20,7 @@
 	},
 	"devDependencies": {
 		"@nextcloud/babel-config": "^1.2.0",
-		"@nextcloud/browserslist-config": "^3.0.0",
+		"@nextcloud/browserslist-config": "^3.1.2",
 		"@nextcloud/webpack-vue-config": "^7.0.2",
 		"vue-loader": "^15.11.1"
 	}
