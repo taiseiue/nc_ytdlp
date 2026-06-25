@@ -1,0 +1,14 @@
+{
+	"name": "taiseiue/nc_ytdlp",
+	"description": "yt-dlp Downloader for Nextcloud",
+	"type": "nextcloud-app",
+	"license": "MIT",
+	"require": {
+		"php": "^8.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"OCA\\NcYtdlp\\": "lib/"
+		}
+	}
+}

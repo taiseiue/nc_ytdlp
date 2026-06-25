@@ -1,0 +1,126 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":disableRateLimiting",
+    "group:monorepos",
+    "group:recommended",
+    "helpers:pinGitHubActionDigests",
+    "workarounds:all"
+  ],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["after 9am and before 6pm every weekday"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on monday"],
+    "automerge": false
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "labels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "description": "Composer (PHP) のパッチ・マイナーは自動マージ対象",
+      "matchManagers": ["composer"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "minimumReleaseAge": "5 days"
+    },
+    {
+      "description": "Composer のメジャー更新はまとめて確認用に分離",
+      "matchManagers": ["composer"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "minimumReleaseAge": "7 days",
+      "labels": ["dependencies", "major-update"]
+    },
+    {
+      "description": "npm (Vue/フロントエンド) devDependencies はパッチ・マイナーを自動マージ",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Vue本体・関連エコシステムはグループ化して一括更新",
+      "matchManagers": ["npm"],
+      "matchPackageNames": [
+        "vue",
+        "vue-router",
+        "vuex",
+        "pinia",
+        "@vue/**",
+        "vite",
+        "vite-plugin-vue**",
+        "@vitejs/**"
+      ],
+      "groupName": "vue monorepo",
+      "minimumReleaseAge": "5 days"
+    },
+    {
+      "description": "PHPUnit / テスト系ツールはグループ化",
+      "matchManagers": ["composer"],
+      "matchPackageNames": [
+        "phpunit/**",
+        "pestphp/**",
+        "mockery/**"
+      ],
+      "groupName": "php test tooling"
+    },
+    {
+      "description": "ESLint / Prettier 等のlint系はグループ化",
+      "matchManagers": ["npm"],
+      "matchPackageNames": [
+        "eslint",
+        "eslint-**",
+        "@typescript-eslint/**",
+        "prettier"
+      ],
+      "groupName": "lint tooling",
+      "automerge": true
+    },
+    {
+      "description": "メジャーアップデートは常に長めに様子見",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "10 days",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "GitHub Actions はダイジェスト固定 + 定期更新",
+      "matchManagers": ["github-actions"],
+      "minimumReleaseAge": "2 days",
+      "groupName": "github actions"
+    }
+  ],
+  "composer": {
+    "ignoreUnstable": true
+  },
+  "npm": {
+    "minimumReleaseAge": "3 days"
+  },
+  "postUpdateOptions": [
+    "npmDedupe"
+  ],
+  "ignorePaths": [
+    "**/vendor/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/js/**"
+  ]
+}
