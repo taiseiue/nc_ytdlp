@@ -9,7 +9,7 @@
 		"watch": "webpack --node-env development --watch"
 	},
 	"dependencies": {
-		"@nextcloud/auth": "^2.4.0",
+		"@nextcloud/auth": "^2.6.0",
 		"@nextcloud/axios": "^2.5.1",
 		"@nextcloud/dialogs": "^7.0.0",
 		"@nextcloud/l10n": "^3.1.0",
