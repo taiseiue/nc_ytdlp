@@ -223,6 +223,7 @@ export default {
 					)
 				}
 			} catch {
+				this.fetchError = this.t('nc_ytdlp', 'Failed to clear history. Please try again.')
 				// Keep current list when server-side clear fails.
 			} finally {
 				this.clearing = false
