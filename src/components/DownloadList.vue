@@ -218,7 +218,7 @@ export default {
 			try {
 				const { data } = await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
 				if (data?.success !== true) {
-					throw new Error('Unexpected clear history response')
+					throw new Error(`Unexpected clear history response: ${JSON.stringify(data)}`)
 				}
 				this.downloads = this.downloads.filter(
 					(d) => d.status !== 'completed' && d.status !== 'failed',
