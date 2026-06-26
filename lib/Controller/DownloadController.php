@@ -101,10 +101,14 @@ class DownloadController extends Controller {
 			return new DataResponse(['error' => 'Not authenticated'], 401);
 		}
 
-		$deleted = $this->downloadMapper->deleteHistoryByUser($user->getUID());
-		return new DataResponse([
-			'success' => true,
-			'deleted' => $deleted,
-		]);
+		try {
+			$deleted = $this->downloadMapper->deleteHistoryByUser($user->getUID());
+			return new DataResponse([
+				'success' => true,
+				'deleted' => $deleted,
+			]);
+		} catch (\Throwable) {
+			return new DataResponse(['error' => 'Failed to clear history'], 500);
+		}
 	}
 }
