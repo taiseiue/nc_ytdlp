@@ -216,18 +216,10 @@ export default {
 
 			this.clearing = true
 			try {
-				const results = await Promise.allSettled(
-					targets.map((d) =>
-						axios.delete(generateUrl(`/apps/nc_ytdlp/api/downloads/${d.id}`)),
-					),
+				await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
+				this.downloads = this.downloads.filter(
+					(d) => d.status !== 'completed' && d.status !== 'failed',
 				)
-				// Drop only the items that were successfully removed on the server.
-				const removed = new Set(
-					targets
-						.filter((d, i) => results[i].status === 'fulfilled')
-						.map((d) => d.id),
-				)
-				this.downloads = this.downloads.filter((d) => !removed.has(d.id))
 			} finally {
 				this.clearing = false
 			}

@@ -51,4 +51,18 @@ class DownloadMapper extends QBMapper {
 			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
 		return $this->findEntity($qb);
 	}
+
+	public function deleteHistoryByUser(string $userId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+			->andWhere(
+				$qb->expr()->orX(
+					$qb->expr()->eq('status', $qb->createNamedParameter('completed')),
+					$qb->expr()->eq('status', $qb->createNamedParameter('failed')),
+				)
+			);
+
+		return $qb->executeStatement();
+	}
 }

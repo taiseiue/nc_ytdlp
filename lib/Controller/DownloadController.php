@@ -93,4 +93,18 @@ class DownloadController extends Controller {
 			return new DataResponse(['error' => 'Not found'], 404);
 		}
 	}
+
+	#[NoAdminRequired]
+	public function clearHistory(): DataResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new DataResponse(['error' => 'Not authenticated'], 401);
+		}
+
+		$deleted = $this->downloadMapper->deleteHistoryByUser($user->getUID());
+		return new DataResponse([
+			'success' => true,
+			'deleted' => $deleted,
+		]);
+	}
 }
