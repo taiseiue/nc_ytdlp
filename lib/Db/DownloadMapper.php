@@ -55,6 +55,7 @@ class DownloadMapper extends QBMapper {
 	/**
 	 * Delete completed and failed downloads for the given user.
 	 *
+	 * @param string $userId Authenticated user ID
 	 * @return int Number of deleted rows
 	 */
 	public function deleteHistoryByUser(string $userId): int {

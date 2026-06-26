@@ -99,6 +99,8 @@ class DownloadController extends Controller {
 	/**
 	 * Delete completed and failed download history entries for the authenticated user.
 	 *
+	 * Returns HTTP 200 on success, 401 when unauthenticated, and 500 on DB failure.
+	 *
 	 * @return DataResponse<array{success: true, deleted: int}|array{error: string}>
 	 */
 	#[NoAdminRequired]
