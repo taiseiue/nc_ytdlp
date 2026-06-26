@@ -4,7 +4,7 @@
 	"type": "nextcloud-app",
 	"license": "MIT",
 	"require": {
-		"php": "^8.2"
+		"php": "^8.5.7"
 	},
 	"autoload": {
 		"psr-4": {
