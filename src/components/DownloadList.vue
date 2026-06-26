@@ -216,10 +216,14 @@ export default {
 
 			this.clearing = true
 			try {
-				await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
-				this.downloads = this.downloads.filter(
-					(d) => d.status !== 'completed' && d.status !== 'failed',
-				)
+				const response = await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
+				if (response.status >= 200 && response.status < 300) {
+					this.downloads = this.downloads.filter(
+						(d) => d.status !== 'completed' && d.status !== 'failed',
+					)
+				}
+			} catch {
+				// Keep current list when server-side clear fails.
 			} finally {
 				this.clearing = false
 			}
