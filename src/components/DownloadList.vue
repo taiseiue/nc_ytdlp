@@ -4,16 +4,31 @@
 			<h3 class="section-title">
 				{{ t('nc_ytdlp', 'Downloads') }}
 			</h3>
-			<NcButton
-				type="tertiary"
-				:aria-label="t('nc_ytdlp', 'Refresh')"
-				:disabled="loading"
-				@click="refresh"
-			>
-				<template #icon>
-					<RefreshIcon :size="18" />
-				</template>
-			</NcButton>
+			<div class="header-actions">
+				<NcButton
+					v-if="clearableCount > 0"
+					type="tertiary"
+					:aria-label="t('nc_ytdlp', 'Clear history')"
+					:title="t('nc_ytdlp', 'Clear history')"
+					:disabled="clearing"
+					@click="clearHistory"
+				>
+					<template #icon>
+						<NcLoadingIcon v-if="clearing" :size="18" />
+						<DeleteSweepIcon v-else :size="18" />
+					</template>
+				</NcButton>
+				<NcButton
+					type="tertiary"
+					:aria-label="t('nc_ytdlp', 'Refresh')"
+					:disabled="loading"
+					@click="refresh"
+				>
+					<template #icon>
+						<RefreshIcon :size="18" />
+					</template>
+				</NcButton>
+			</div>
 		</div>
 
 		<!-- Error state -->
@@ -105,6 +120,7 @@ import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import NcNoteCard from '@nextcloud/vue/dist/Components/NcNoteCard.js'
 import RefreshIcon from 'vue-material-design-icons/Refresh.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import DeleteSweepIcon from 'vue-material-design-icons/DeleteSweep.vue'
 import FolderIcon from 'vue-material-design-icons/Folder.vue'
 import VideoIcon from 'vue-material-design-icons/FileVideo.vue'
 import MusicIcon from 'vue-material-design-icons/FileMusic.vue'
@@ -122,6 +138,7 @@ export default {
 		NcNoteCard,
 		RefreshIcon,
 		DeleteIcon,
+		DeleteSweepIcon,
 		FolderIcon,
 		VideoIcon,
 		MusicIcon,
@@ -133,9 +150,20 @@ export default {
 		return {
 			downloads: [],
 			loading: false,
+			clearing: false,
 			fetchError: null,
 			pollTimer: null,
 		}
+	},
+
+	computed: {
+		// Completed and failed downloads can be cleared from the history;
+		// pending and running ones are kept.
+		clearableCount() {
+			return this.downloads.filter(
+				(d) => d.status === 'completed' || d.status === 'failed',
+			).length
+		},
 	},
 
 	mounted() {
@@ -172,6 +200,35 @@ export default {
 				this.downloads = this.downloads.filter((d) => d.id !== id)
 			} catch {
 				// Show nothing; the item stays in the list so the user can retry
+			}
+		},
+
+		async clearHistory() {
+			if (this.clearing) {
+				return
+			}
+			const targets = this.downloads.filter(
+				(d) => d.status === 'completed' || d.status === 'failed',
+			)
+			if (targets.length === 0) {
+				return
+			}
+
+			this.clearing = true
+			try {
+				const { data } = await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
+				if (data?.success !== true) {
+					throw new Error(`Unexpected clear history response: ${JSON.stringify(data)}`)
+				}
+				this.downloads = this.downloads.filter(
+					(d) => d.status !== 'completed' && d.status !== 'failed',
+				)
+			} catch (error) {
+				console.error('Failed to clear history:', error)
+				this.fetchError = this.t('nc_ytdlp', 'Failed to clear history. Please try again.')
+				// Keep current list when server-side clear fails.
+			} finally {
+				this.clearing = false
 			}
 		},
 
@@ -234,6 +291,12 @@ export default {
 	font-weight: 600;
 	margin: 0;
 	color: var(--color-main-text);
+}
+
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 }
 
 .list-error {

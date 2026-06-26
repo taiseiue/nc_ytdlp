@@ -15,6 +15,7 @@ use OCP\AppFramework\Http\DataResponse;
 use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 class DownloadController extends Controller {
 	public function __construct(
@@ -22,6 +23,7 @@ class DownloadController extends Controller {
 		private readonly DownloadMapper $downloadMapper,
 		private readonly IJobList $jobList,
 		private readonly IUserSession $userSession,
+		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -91,6 +93,35 @@ class DownloadController extends Controller {
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException) {
 			return new DataResponse(['error' => 'Not found'], 404);
+		}
+	}
+
+	/**
+	 * Delete completed and failed download history entries for the authenticated user.
+	 *
+	 * Returns HTTP 200 on success, 401 when unauthenticated, and 500 on DB failure.
+	 *
+	 * @return DataResponse<array{success: true, deleted: int}|array{error: string}>
+	 */
+	#[NoAdminRequired]
+	public function clearHistory(): DataResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new DataResponse(['error' => 'Not authenticated'], 401);
+		}
+
+		try {
+			$deleted = $this->downloadMapper->deleteHistoryByUser($user->getUID());
+			return new DataResponse([
+				'success' => true,
+				'deleted' => $deleted,
+			]);
+		} catch (\Throwable $e) {
+			$this->logger->error('Failed to clear download history', [
+				'userId' => $user->getUID(),
+				'exception' => $e,
+			]);
+			return new DataResponse(['error' => 'Failed to clear history'], 500);
 		}
 	}
 }
