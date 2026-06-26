@@ -15,6 +15,7 @@ use OCP\AppFramework\Http\DataResponse;
 use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 class DownloadController extends Controller {
 	public function __construct(
@@ -22,6 +23,7 @@ class DownloadController extends Controller {
 		private readonly DownloadMapper $downloadMapper,
 		private readonly IJobList $jobList,
 		private readonly IUserSession $userSession,
+		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -107,7 +109,11 @@ class DownloadController extends Controller {
 				'success' => true,
 				'deleted' => $deleted,
 			]);
-		} catch (\Throwable) {
+		} catch (\Throwable $e) {
+			$this->logger->error('Failed to clear download history', [
+				'userId' => $user->getUID(),
+				'error' => $e->getMessage(),
+			]);
 			return new DataResponse(['error' => 'Failed to clear history'], 500);
 		}
 	}
