@@ -113,6 +113,7 @@ class DownloadController extends Controller {
 			$this->logger->error('Failed to clear download history', [
 				'userId' => $user->getUID(),
 				'error' => $e->getMessage(),
+				'exception' => $e,
 			]);
 			return new DataResponse(['error' => 'Failed to clear history'], 500);
 		}
