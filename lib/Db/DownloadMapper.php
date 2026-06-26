@@ -52,6 +52,11 @@ class DownloadMapper extends QBMapper {
 		return $this->findEntity($qb);
 	}
 
+	/**
+	 * Delete completed and failed downloads for the given user.
+	 *
+	 * @return int Number of deleted rows
+	 */
 	public function deleteHistoryByUser(string $userId): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete($this->getTableName())

@@ -97,6 +97,9 @@ class DownloadController extends Controller {
 	}
 
 	#[NoAdminRequired]
+	/**
+	 * Delete completed and failed download history entries for the authenticated user.
+	 */
 	public function clearHistory(): DataResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
