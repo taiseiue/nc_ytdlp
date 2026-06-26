@@ -216,13 +216,12 @@ export default {
 
 			this.clearing = true
 			try {
-				const response = await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
-				if (response.status >= 200 && response.status < 300) {
-					this.downloads = this.downloads.filter(
-						(d) => d.status !== 'completed' && d.status !== 'failed',
-					)
-				}
-			} catch {
+				await axios.delete(generateUrl('/apps/nc_ytdlp/api/downloads/history'))
+				this.downloads = this.downloads.filter(
+					(d) => d.status !== 'completed' && d.status !== 'failed',
+				)
+			} catch (error) {
+				console.error('Failed to clear history:', error)
 				this.fetchError = this.t('nc_ytdlp', 'Failed to clear history. Please try again.')
 				// Keep current list when server-side clear fails.
 			} finally {
